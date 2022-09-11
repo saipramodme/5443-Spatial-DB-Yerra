@@ -1,0 +1,104 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="main.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+<div class="s01">
+    <form>
+        <fieldset>
+            <legend>Zip Code API</legend>
+        </fieldset>
+        <div class="inner-form">
+            <div class="input-field first-wrap">
+                <input id="input1" type="text" placeholder="Zip Code or Latitude">
+            </div>
+            <div class="input-field second-wrap">
+                <input id="input2" type="text" placeholder="Longitude">
+            </div>
+            <div class="input-field third-wrap">
+                <button class="btn-search" type="button" id="searchButton">Search</button>
+            </div>
+        </div>
+    </form>
+    <div class="results" id="results">
+    </div>
+</div>
+
+</body>
+<script>
+    const createTable = (tableData, headers) => {
+        let table = document.createElement('table');
+        let tableHeader = document.createElement('thead');
+        let hrow = document.createElement('tr');
+        for (let header of headers){
+            let h1 = document.createElement('th');
+            h1.appendChild(document.createTextNode(header));
+            hrow.appendChild(h1);
+        }
+        tableHeader.appendChild(hrow);
+        table.appendChild(tableHeader);
+
+        let tableBody = document.createElement('tbody');
+
+        tableData.forEach(function(rowData) {
+            let row = document.createElement('tr');
+
+            rowData.forEach(function(cellData) {
+                let cell = document.createElement('td');
+                cell.appendChild(document.createTextNode(cellData));
+                row.appendChild(cell);
+            });
+
+            tableBody.appendChild(row);
+        });
+
+        table.appendChild(tableBody);
+        document.getElementById("results").innerHTML = null;
+        document.getElementById("results").appendChild(table);
+    }
+
+    const findAll = async () => {
+        const response = await fetch("http://127.0.0.1:8089/findAll");
+        const result = await response.json();
+        createTable(result, ["zip_code", "latitude", "longitude", "city", "state", "county"]);
+    };
+
+    const findOne = async (id) => {
+        const response = await fetch(`http://127.0.0.1:8089/findOne/${id}`);
+        const result = await response.json();
+        createTable(result, ["zip_code", "latitude", "longitude", "city", "state", "county"]);
+    };
+
+    const findClosest = async (long, lat) => {
+        const response = await fetch(`http://127.0.0.1:8089/findClosest/${long}/${lat}`);
+        const result = await response.json();
+        createTable(result, ["zip_code", "latitude", "longitude", "city", "state", "county", "distance (miles)"]);
+    };
+
+    const processInput = () => {
+        let input1 = $("#input1").val();
+        let input2 = $("#input2").val();
+
+        if (!input1){
+            findAll();
+        }
+
+        if (input1 && !input2){
+            findOne(input1);
+        }
+
+        if (input1 && input2) {
+            findClosest(input1, input2);
+        }
+    }
+</script>
+<script>
+    $("#searchButton").on('click', ()=> {
+        return processInput();
+    });
+</script>
+</html>
