@@ -21,4 +21,4 @@ Zipcodes API is a project based on python and Postgresql which helps to find nea
 
 
 - Example Command:
-- findOne/501 , findAll , findClosest/lat,long
+- findOne/501 , findAll , findClosest/lat/long
